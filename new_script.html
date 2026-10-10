@@ -1,0 +1,65 @@
+<script>
+  const lenis = new Lenis({
+    duration: 1.2,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), 
+    smoothWheel: true,
+  });
+
+  function raf(time) {
+    lenis.raf(time);
+    requestAnimationFrame(raf);
+  }
+  requestAnimationFrame(raf);
+
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add((time)=>{
+    lenis.raf(time * 1000);
+  });
+  gsap.ticker.lagSmoothing(0);
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  gsap.utils.toArray('[data-animate]').forEach(el => {
+    const animationType = el.getAttribute('data-animate');
+    const delay = parseFloat(el.getAttribute('data-delay') || 0) / 1000;
+    const duration = parseFloat(el.getAttribute('data-duration') || 1.2);
+    const once = el.getAttribute('data-once') !== 'false';
+
+    let fromVars = { opacity: 0 };
+    let toVars = { 
+      opacity: 1, 
+      duration: duration, 
+      delay: delay, 
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: el,
+        start: "top 85%",
+        toggleActions: once ? "play none none none" : "play reverse play reverse"
+      }
+    };
+
+    if (animationType === 'fade-up') {
+      fromVars.y = 30;
+      toVars.y = 0;
+    } else if (animationType === 'zoom-in') {
+      fromVars.scale = 0.98;
+      toVars.scale = 1;
+    }
+
+    gsap.fromTo(el, fromVars, toVars);
+  });
+
+  gsap.utils.toArray('.parallax-img').forEach(img => {
+    gsap.to(img, {
+      yPercent: 15,
+      ease: "none",
+      scrollTrigger: {
+        trigger: img.parentElement,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: true
+      }
+    });
+  });
+</script>
+</body></html>
